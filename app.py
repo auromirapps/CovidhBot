@@ -1,7 +1,7 @@
 import os
 import sys 
 import traceback
-from flask import Flask, request, Response
+from flask import Flask, request, Response,render_template
 from botbuilder.core import BotFrameworkAdapter, BotFrameworkAdapterSettings, ConversationState,MemoryStorage,TurnContext,UserState
 from botbuilder.schema import Activity,ActivityTypes
 import asyncio
@@ -9,6 +9,10 @@ from luis.luisApp import LuisConnect
 from logger.logger import Log
 from pandemic.covidh import CovidhDetails
 from bots import CustomPromptBot
+import requests
+import plotly.graph_objects as go
+import pandas as pd
+import io
 
 app = Flask(__name__)
 loop = asyncio.get_event_loop()
@@ -16,8 +20,8 @@ loop = asyncio.get_event_loop()
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
 
-#"90258c37-4e41-4894-a48f-0bd342d4bc1c", "j/Sw@1Wm0p-27/9FyDzT/t3hT4_Sw=wV"
-bot_settings = BotFrameworkAdapterSettings("90258c37-4e41-4894-a48f-0bd342d4bc1c", "j/Sw@1Wm0p-27/9FyDzT/t3hT4_Sw=wV")
+#""
+bot_settings = BotFrameworkAdapterSettings("", "")
 bot_adapter = BotFrameworkAdapter(bot_settings)
 
 # Create MemoryStorage and state
@@ -30,9 +34,47 @@ luis_bot_dialog = LuisConnect(CONVERSATION_STATE, USER_STATE)
 
 
 @app.route('/')
-def hello():
+def index():
     """Renders a sample page."""
-    return "Welcome to chatbot project!"
+    url = "https://www.trackcorona.live/api/countries.csv"
+    data=requests.get(url).content
+    ds = pd.read_csv(io.StringIO(data.decode('utf-8')))
+    df = ds.apply(lambda x: x.astype(str).str.upper())
+    maxval = int(df["confirmed"].max())
+    #chart
+    df['text'] = df['location'] +"\n Confirmed cases :"+ df["confirmed"]
+                
+    fig = go.Figure(data = go.Scattergeo(
+        lon = df["longitude"],
+        lat = df["latitude"],
+        text = df["text"],
+        mode = "markers",
+        marker = dict(
+            size = 12,
+            opacity = 0.8,
+            reversescale = True,
+            autocolorscale = True,
+            symbol = 'square',
+            line = dict(
+                width = 1,
+                color = 'rgba(102, 102, 105)'
+            ),
+            cmin = 0,
+       
+            cmax = maxval,
+            colorbar_title = "COVID 19 Reported Cases"
+        )
+    ))
+    fig.update_layout(
+        title = "COVID19 Confirmed Cases Around the World",
+        geo = dict(
+            scope = "world",
+            showland = True,
+        )
+    )
+    worldmapfile = 'templates/index.html'
+    fig.write_html(worldmapfile)
+    return render_template("index.html")
 
 @app.route("/api/messages", methods=["POST"])
 def messages():
@@ -59,10 +101,10 @@ def messages():
 
 if __name__ == '__main__':
 
-   # HOST = os.environ.get('SERVER_HOST', 'localhost')
-   # try:
-   #     PORT = int(os.environ.get('SERVER_PORT', '5555'))
-   # except ValueError:
-   #     PORT = 5555
-   # app.run(HOST, PORT)
+   HOST = os.environ.get('SERVER_HOST', 'localhost')
+   try:
+       PORT = int(os.environ.get('SERVER_PORT', '5555'))
+   except ValueError:
+        PORT = 5555
+   app.run(HOST, PORT)
    app.run()
