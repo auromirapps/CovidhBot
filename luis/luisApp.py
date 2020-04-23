@@ -192,7 +192,8 @@ class LuisConnect(ActivityHandler):
                
                     #fig.show()
                     #save data to cosmos table
-                    table_service = TableService(connection_string='DefaultEndpointsProtocol=https;AccountName=gypsycosmostable;AccountKey=dXx6HK61qvIJpzdQsCLbCpEnUd7szCAf5cWNVkeXk4ExZHqxjip7MeFQCBSBgNUhXiIvfoyPQky2tT0bzKzlFQ==;TableEndpoint=https://gypsycosmostable.table.cosmos.azure.com:443/;')
+                    self.connectionstring = self.configuration['COSMOS_DB_CS']
+                    table_service = TableService(connection_string=self.connectionstring)
                     userdetails = {'PartitionKey': partionkey, 'RowKey': rowid, 'name': username, 'emailid': emailid,'city':city}
                     table_service.insert_entity('gypsybotconversations', userdetails)
                     #get corona virus details

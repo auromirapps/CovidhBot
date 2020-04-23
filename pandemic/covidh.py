@@ -24,10 +24,12 @@ class CovidhDetails():
 
     def get_covidh_info(self,city):
         self.city=city
-
+        
+        self.city_url=self.configuration['DATA_URL_CITY']
+        self.country_url = self.configuration['DATA_URL_COUNTRY']
         ## Country Search
         try:
-            url = "https://www.trackcorona.live/api/countries.csv"
+            url = self.country_url
             data=requests.get(url).content
             ds = pd.read_csv(io.StringIO(data.decode('utf-8')))
             df = ds.apply(lambda x: x.astype(str).str.upper())
@@ -46,9 +48,9 @@ class CovidhDetails():
         return self.bot_says
 
     def get_covidh_city_info(self,city):
-        self.city=city
+       
         try:
-            url = "https://www.trackcorona.live/api/cities.csv"
+            url = self.city_url
             data=requests.get(url).content
             ds = pd.read_csv(io.StringIO(data.decode('utf-8')))
             df = ds.apply(lambda x: x.astype(str).str.upper())
@@ -67,21 +69,21 @@ class CovidhDetails():
     def sendMail(self,toAddress, username):
         #smpt configuration
         try:
-            sendto = 'auromirapps@gmail.com'
-            user= 'auromirapps@gmail.com'
-            password = "foryoureyesonly@9696"
-            smtpsrv = "smtp.office365.com"
-            smtpserver = smtplib.SMTP(smtpsrv,587)
+            
+            self.user=self.configuration['EMAIL_USER']
+            self.password=self.configuration['EMAIL_PASS']
+            self.smtpsrv = self.configuration['SMTP_SERVER']
+            smtpserver = smtplib.SMTP(self.smtpsrv,self.configuration['EMAIL_PORT'])
 
             smtpserver.starttls()
             smtpserver.ehlo
-            smtpserver.login(user, password)
+            smtpserver.login(self.user, self.password)
 
             #message template creation
             msg = MIMEMultipart() 
             
             # setup the parameters of the message
-            msg['From']="auromirapps@gmail.com"
+            msg['From']=self.user
             msg['To']= toAddress
             msg['Subject']="Coronavirus - Preventive measures"
             emailcontent = "<p><h3>Dear "+username+",</h3></p>"
@@ -124,8 +126,8 @@ class CovidhDetails():
 
 #Generate world corona map
     def renderWorldCoronaMap(self):
-        url = "https://www.trackcorona.live/api/countries.csv"
-        data=requests.get(url).content
+        self.country_url = self.configuration['DATA_URL_COUNTR']
+        data=requests.get(self.country_url).content
         ds = pd.read_csv(io.StringIO(data.decode('utf-8')))
         df = ds.apply(lambda x: x.astype(str).str.upper())
         maxval = int(df["confirmed"].max())

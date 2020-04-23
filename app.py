@@ -13,6 +13,7 @@ import requests
 import plotly.graph_objects as go
 import pandas as pd
 import io
+from config.config_reader import ConfigReader
 
 app = Flask(__name__)
 loop = asyncio.get_event_loop()
@@ -20,7 +21,10 @@ loop = asyncio.get_event_loop()
 # Make the WSGI interface available at the top level so wfastcgi can get it.
 wsgi_app = app.wsgi_app
 
-#""
+# configuration read
+config_reader = ConfigReader()
+configuration = config_reader.read_config()
+
 bot_settings = BotFrameworkAdapterSettings("", "")
 bot_adapter = BotFrameworkAdapter(bot_settings)
 
@@ -35,9 +39,9 @@ luis_bot_dialog = LuisConnect(CONVERSATION_STATE, USER_STATE)
 
 @app.route('/')
 def index():
-    """Renders a sample page."""
-    url = "https://www.trackcorona.live/api/countries.csv"
-    data=requests.get(url).content
+    """Generate and render world corona virus map."""
+    country_url = configuration['DATA_URL_COUNTRY']
+    data=requests.get(country_url).content
     ds = pd.read_csv(io.StringIO(data.decode('utf-8')))
     df = ds.apply(lambda x: x.astype(str).str.upper())
     maxval = int(df["confirmed"].max())
@@ -76,6 +80,7 @@ def index():
     fig.write_html(worldmapfile)
     return render_template("index.html")
 
+# Primary method to initiate conversation
 @app.route("/api/messages", methods=["POST"])
 def messages():
     if "application/json" in request.headers["content-type"]:
@@ -100,11 +105,11 @@ def messages():
 
 
 if __name__ == '__main__':
-
-   #HOST = os.environ.get('SERVER_HOST', 'localhost')
-   #try:
-   #    PORT = int(os.environ.get('SERVER_PORT', '5555'))
-   #except ValueError:
-    #    PORT = 5555
-   #app.run(HOST, PORT)
+#uncomment this code this homepage chart
+#   HOST = os.environ.get('SERVER_HOST', 'localhost')
+#   try:
+#       PORT = int(os.environ.get('SERVER_PORT', '5555'))
+#   except ValueError:
+#        PORT = 5555
+#   app.run(HOST, PORT)
    app.run()
