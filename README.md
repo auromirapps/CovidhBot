@@ -33,6 +33,7 @@ Chatbot project is built and deployed in Microsoft azure cloud platform with an 
 Microsoft cloud platform provides multiple services for different kind of projects based on the usage. For this Chatbot project we have used below services
 Language Understanding (LUIS)
 
+## LUIS
 A machine learning-based service to build natural language into apps, bots, and IoT devices. It is designed to identify valuable information in conversations, LUIS interprets user goals (intents) and distills valuable information from sentences (entities), for a high quality, nuanced language model. LUIS integrates seamlessly with the Azure Bot Service, making it easy to create a sophisticated bot.
 
 ## Azure Web App
