@@ -14,7 +14,7 @@ azure-functions==1.2.0
 azure-nspkg==3.0.2
 azure-storage-blob==2.1.0
 azure-storage-common==2.1.0
-Babel==2.7.0
+Babel==2.9.1
 blinker==1.4
 botbuilder-ai==4.8.0
 botbuilder-applicationinsights==4.8.0
