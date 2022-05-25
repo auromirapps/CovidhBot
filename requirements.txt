@@ -64,7 +64,7 @@ pip==20.0.2
 plotly==4.6.0
 psutil==5.7.0
 pycparser==2.20
-PyJWT==1.5.3
+PyJWT==2.4.0
 pyowm==2.10.0
 pyparsing==2.4.6
 python-dateutil==2.8.1
