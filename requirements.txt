@@ -57,7 +57,7 @@ msrest==0.6.10
 msrestazure==0.6.3
 multidict==4.7.5
 multipledispatch==0.6.0
-numpy==1.18.2
+numpy==1.22.0
 oauthlib==3.1.0
 pandas==1.0.3
 pip==20.0.2
